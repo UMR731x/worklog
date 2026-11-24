@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>工作手记 · 记录每一步进展</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/welcome.css">
+    <link rel="stylesheet" href="/dialogs.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/editor.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-book" viewBox="0 0 24 24">
+        <path d="M8 3H19V21H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z M5 17a3 3 0 0 1 3-3h11 M9 7h6 M9 10h4"/>
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5"/>
+        <path d="m16 16 4.5 4.5"/>
+      </symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24">
+        <path d="M3 7V5h6l2 3h10v12H3ZM3 8h8"/>
+      </symbol>
+      <symbol id="i-file" viewBox="0 0 24 24">
+        <path d="M14 3H5v18h14V8ZM14 3v5h5M8 12h8M8 16h6"/>
+      </symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24">
+        <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/>
+      </symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24">
+        <path d="M4 7h16M4 17h16M8 4v6M16 14v6"/>
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18"/>
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path d="m9 5 7 7-7 7"/>
+      </symbol>
+      <symbol id="i-up" viewBox="0 0 24 24">
+        <path d="M12 20V4m-7 7 7-7 7 7"/>
+      </symbol>
+      <symbol id="i-image" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <circle cx="8" cy="8" r="1.5"/>
+        <path d="m3 17 5-5 4 4 4-6 5 7"/>
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 24 24">
+        <path d="m5 12 4 4L19 6"/>
+      </symbol>
+      <symbol id="i-save" viewBox="0 0 24 24">
+        <path d="M4 3h13l3 3v15H4ZM8 3v6h8V3M8 21v-7h8v7"/>
+      </symbol>
+      <symbol id="i-power" viewBox="0 0 24 24">
+        <path d="M12 2v10M6.3 5.5a9 9 0 1 0 11.4 0"/>
+      </symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </symbol>
+      <symbol id="i-code" viewBox="0 0 24 24">
+        <path d="m7 7-5 5 5 5m10-10 5 5-5 5M14 4l-4 16"/>
+      </symbol>
+      <symbol id="i-list" viewBox="0 0 24 24">
+        <path d="M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1"/>
+      </symbol>
+      <symbol id="i-link" viewBox="0 0 24 24">
+        <path d="m10 7 3-3a5 5 0 0 1 7 7l-3 3M14 17l-3 3a5 5 0 0 1-7-7l3-3M8 16l8-8"/>
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2"/>
+      </symbol>
+    </svg>
+    <header class="topbar">
+      <button id="toggle-sidebar" class="icon-button mobile-toggle" aria-label="切换项目侧栏">
+        <svg class="icon">
+          <use href="#i-menu"/>
+        </svg>
+      </button>
+      <a class="brand" href="/" aria-label="工作手记首页">
+        <span class="brand-mark">
+          <svg class="icon">
+            <use href="#i-book"/>
+          </svg>
+        </span>
+        <span>工作手记</span>
+        <span class="edition">WORKLOG</span>
+      </a>
+      <div class="topbar-actions">
+        <span id="today" class="today"></span>
+        <span class="topbar-divider"></span>
+        <button class="text-button" id="open-settings">
+          <svg class="icon">
+            <use href="#i-settings"/>
+          </svg>
+          <span>设置</span>
+        </button>
+        <button class="icon-button" id="quit" title="保存并退出应用" aria-label="退出应用">
+          <svg class="icon">
+            <use href="#i-power"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div id="notice" class="notice" role="alert" hidden>
+      <span id="notice-text"></span>
+      <button id="dismiss-notice" class="icon-button" aria-label="关闭提示">
+        <svg class="icon">
+          <use href="#i-close"/>
+        </svg>
+      </button>
+    </div>
+    <div class="workspace-layout" id="layout">
+      <aside class="sidebar" id="sidebar" aria-label="项目侧栏">
+        <div class="sidebar-heading">
+          <div>
+            <span class="eyebrow">WORKSPACE</span>
+            <h1>我的项目<span class="count-badge" id="project-count">0</span></h1>
+          </div>
+          <div class="sidebar-tools">
+            <button id="delete-project" class="icon-button" title="删除当前项目" aria-label="删除当前项目" disabled>
+              <svg class="icon">
+                <use href="#i-trash"/>
+              </svg>
+            </button>
+            <button id="new-project" class="icon-button add-project" title="新增项目" aria-label="新增项目">
+              <svg class="icon">
+                <use href="#i-plus"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="search-field">
+          <svg class="icon">
+            <use href="#i-search"/>
+          </svg>
+          <input id="project-search" type="search" placeholder="查找项目…" aria-label="查找项目" autocomplete="off">
+        </div>
+        <div class="filters" aria-label="按状态筛选，可多选">
+          <button data-filter="Doing" aria-pressed="true"><span class="dot doing"></span>Doing</button>
+          <button data-filter="Done" aria-pressed="true"><span class="dot done"></span>Done</button>
+          <button data-filter="Pending" aria-pressed="true"><span class="dot pending"></span>Pending</button>
+        </div>
+        <div class="list-heading">
+          <span>项目列表</span>
+          <span id="visible-count">0 个</span>
+        </div>
+        <nav class="project-list" id="project-list" aria-label="工作项目"></nav>
+        <p class="sidebar-empty" id="sidebar-empty">还没有项目<br>点击右上角 + 开始记录</p>
+        <button class="workspace-location" id="workspace-location" title="更改工作目录">
+          <span class="location-icon">
+            <svg class="icon">
+              <use href="#i-folder"/>
+            </svg>
+          </span>
+          <span class="location-copy">
+            <span>本地工作目录</span>
+            <span id="directory-label">正在加载…</span>
+          </span>
+          <svg class="icon small">
+            <use href="#i-settings"/>
+          </svg>
+        </button>
+      </aside>
+      <div class="resize-handle" id="resize-handle" role="separator" aria-label="调整侧栏宽度" aria-orientation="vertical" tabindex="0" aria-valuemin="220" aria-valuemax="480" aria-valuenow="280"></div>
+      <main class="main" id="main">
+        <details class="warnings" id="workspace-warnings" hidden>
+          <summary>部分项目无法读取，原文件已保留</summary>
+          <ul id="warning-list"></ul>
+        </details>
+        <section class="welcome" id="welcome">
+          <div class="welcome-art" aria-hidden="true">
+            <span class="art-orbit"></span>
+            <div class="art-note">
+              <span class="art-icon">
+                <svg class="icon">
+                  <use href="#i-book"/>
+                </svg>
+              </span>
+              <i></i>
+              <i></i>
+              <i></i>
+              <span class="art-check">
+                <svg class="icon">
+                  <use href="#i-check"/>
+                </svg>
+              </span>
+            </div>
+            <span class="art-spark"></span>
+          </div>
+          <span class="eyebrow">A LITTLE PROGRESS, EVERY DAY</span>
+          <h2>每一步进展，都值得记下。</h2>
+          <p>为手头的工作建一个项目，<br>把今天的进度、想法和下一步，留在这里。</p>
+          <button id="welcome-create" class="primary-button"><svg class="icon"><use href="#i-plus"/></svg>新建第一个项目</button>
+          <div class="welcome-features">
+            <span><span class="dot doing"></span>有条理的项目</span>
+            <span><svg class="icon small"><use href="#i-file"/></svg>Markdown 记录</span>
+            <span><svg class="icon small"><use href="#i-folder"/></svg>数据保存在本地</span>
+          </div>
+        </section>
+        <section class="project-view" id="project-view" hidden>
+          <div class="breadcrumb">
+            <svg class="icon small">
+              <use href="#i-folder"/>
+            </svg>
+            <span>我的项目</span>
+            <span>/</span>
+            <span id="breadcrumb-name"></span>
+          </div>
+          <header class="project-header">
+            <div class="project-heading">
+              <div class="project-title-line">
+                <h2 id="project-title"></h2>
+                <label class="status-select" id="status-label">
+                  <span class="dot"></span>
+                  <select id="project-status" aria-label="项目状态">
+                    <option>Doing</option>
+                    <option>Done</option>
+                    <option>Pending</option>
+                  </select>
+                </label>
+              </div>
+              <p id="project-subtitle"></p>
+            </div>
+            <button id="add-entry" class="primary-button"><svg class="icon"><use href="#i-plus"/></svg>新增进度</button>
+          </header>
+          <section class="entry-empty" id="entry-empty">
+            <span class="empty-document">
+              <svg class="icon">
+                <use href="#i-file"/>
+              </svg>
+            </span>
+            <h3>从今天的进度开始</h3>
+            <p>记录完成的工作，也记下接下来的计划。</p>
+            <button id="empty-add-entry" class="secondary-button"><svg class="icon"><use href="#i-plus"/></svg>添加第一条进度</button>
+          </section>
+          <div class="journal" id="journal" hidden>
+            <aside class="entry-sidebar" aria-label="进度记录">
+              <div class="entry-sidebar-heading">
+                <span>进度记录</span>
+                <span id="entry-count"></span>
+              </div>
+              <nav id="entry-list" class="entry-list"></nav>
+              <div class="timeline-caption"><svg class="icon small"><use href="#i-clock"/></svg>按日期记录，慢慢向前</div>
+            </aside>
+            <section class="editor-panel" id="editor-panel" data-mode="edit">
+              <div class="editor-heading">
+                <div>
+                  <span class="eyebrow">PROGRESS NOTE</span>
+                  <h3 id="entry-title"></h3>
+                </div>
+                <div class="editor-modes" role="group" aria-label="编辑视图">
+                  <button data-mode="edit" aria-pressed="true">编辑</button>
+                  <button data-mode="split" aria-pressed="false">分栏</button>
+                  <button data-mode="preview" aria-pressed="false">预览</button>
+                </div>
+              </div>
+              <div class="editor-toolbar" id="editor-toolbar" aria-label="Markdown 工具栏">
+                <div class="format-actions">
+                  <button data-format="heading" class="format-button" title="标题" aria-label="插入标题">H<span>2</span></button>
+                  <button data-format="bold" class="format-button bold" title="粗体" aria-label="插入粗体">B</button>
+                  <button data-format="italic" class="format-button italic" title="斜体" aria-label="插入斜体">I</button>
+                  <span class="toolbar-divider"></span>
+                  <button data-format="list" class="icon-button" title="列表" aria-label="插入列表">
+                    <svg class="icon">
+                      <use href="#i-list"/>
+                    </svg>
+                  </button>
+                  <button data-format="task" class="icon-button" title="任务列表" aria-label="插入任务列表">
+                    <svg class="icon">
+                      <use href="#i-check"/>
+                    </svg>
+                  </button>
+                  <button data-format="code" class="icon-button" title="代码块" aria-label="插入代码块">
+                    <svg class="icon">
+                      <use href="#i-code"/>
+                    </svg>
+                  </button>
+                  <button data-format="link" class="icon-button" title="链接" aria-label="插入链接">
+                    <svg class="icon">
+                      <use href="#i-link"/>
+                    </svg>
+                  </button>
+                  <button id="insert-image" class="icon-button" title="插入图片，也可粘贴或拖入" aria-label="插入图片">
+                    <svg class="icon">
+                      <use href="#i-image"/>
+                    </svg>
+                  </button>
+                </div>
+                <button id="save-entry" class="text-button save-button" title="保存（Ctrl+S）"><svg class="icon small"><use href="#i-save"/></svg>保存</button>
+              </div>
+              <div class="editor-content">
+                <textarea id="markdown-editor" aria-label="工作进度 Markdown 编辑区" spellcheck="false" placeholder="今天推进了哪些工作？&#10;&#10;## 今日进展&#10;- &#10;&#10;## 下一步&#10;- [ ] &#10;&#10;支持 Markdown，可粘贴或拖入图片。"></textarea>
+                <article id="markdown-preview" class="markdown-preview" aria-label="Markdown 预览"></article>
+              </div>
+              <div class="editor-footer">
+                <span>Markdown<span class="footer-divider">·</span>自动换行</span>
+                <span id="character-count">0 字符</span>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+    <footer class="statusbar">
+      <span><span class="dot doing"></span>本地运行<span class="statusbar-divider">/</span><span id="total-projects">0 个项目</span></span>
+      <span class="save-status" id="save-status" role="status">
+        <svg class="icon small">
+          <use href="#i-check"/>
+        </svg>
+        <span id="save-status-text">准备就绪</span>
+      </span>
+    </footer>
+    <dialog id="create-dialog">
+      <form id="create-form">
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">NEW PROJECT</span>
+            <h2>开始一项新的工作</h2>
+          </div>
+          <button type="button" class="icon-button" data-close aria-label="关闭">
+            <svg class="icon">
+              <use href="#i-close"/>
+            </svg>
+          </button>
+        </div>
+        <label class="field-label" for="new-project-name">项目名称</label>
+        <input id="new-project-name" class="text-input" placeholder="例如：产品改版、日常运营…" required autocomplete="off">
+        <label class="field-label" for="new-project-status">初始状态</label>
+        <select id="new-project-status" class="text-input">
+          <option value="Pending">Pending · 待开始</option>
+          <option value="Doing">Doing · 进行中</option>
+          <option value="Done">Done · 已完成</option>
+        </select>
+        <p class="dialog-hint">每个项目拥有独立的进度记录和图片目录。</p>
+        <p class="form-error" id="create-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close>取消</button>
+          <button type="submit" class="primary-button">创建项目<svg class="icon"><use href="#i-chevron"/></svg></button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="delete-dialog">
+      <form id="delete-form">
+        <div class="dialog-heading">
+          <h2>删除项目？</h2>
+          <button type="button" class="icon-button" data-close aria-label="关闭">
+            <svg class="icon">
+              <use href="#i-close"/>
+            </svg>
+          </button>
+        </div>
+        <p class="delete-description">将删除「<strong id="delete-project-name"></strong>」及其全部进度记录和图片。此操作无法撤销。</p>
+        <p class="form-error" id="delete-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close>保留项目</button>
+          <button type="submit" class="danger-button">确认删除</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="settings-dialog" class="settings-dialog">
+      <form id="settings-form">
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">WORKSPACE SETTINGS</span>
+            <h2>工作空间设置</h2>
+          </div>
+          <button type="button" class="icon-button" data-close aria-label="关闭">
+            <svg class="icon">
+              <use href="#i-close"/>
+            </svg>
+          </button>
+        </div>
+        <label class="field-label" for="directory-input">工作目录</label>
+        <div class="directory-input-row">
+          <input id="directory-input" class="text-input" required autocomplete="off" spellcheck="false">
+          <button type="button" id="browse-directory" class="secondary-button"><svg class="icon"><use href="#i-folder"/></svg>浏览</button>
+        </div>
+        <p class="dialog-hint">选择文件夹，或输入完整路径。不存在的目录会在切换时创建。<br>切换后显示新目录中的项目，原目录中的数据保持原位。</p>
+        <div id="directory-browser" class="directory-browser" hidden>
+          <div class="directory-browser-heading">
+            <button type="button" id="directory-parent" class="icon-button" title="上一级目录" aria-label="上一级目录">
+              <svg class="icon">
+                <use href="#i-up"/>
+              </svg>
+            </button>
+            <span id="browsing-path"></span>
+          </div>
+          <div id="directory-list" class="directory-list"></div>
+        </div>
+        <p class="form-error" id="settings-error" role="alert"></p>
+        <div class="settings-note">
+          <svg class="icon">
+            <use href="#i-book"/>
+          </svg>
+          <span>项目内容以 JSON 保存，图片位于项目的 sources 文件夹。备份时复制整个工作目录即可。</span>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close>取消</button>
+          <button type="submit" class="primary-button">保存并切换</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="quit-dialog">
+      <div class="dialog-heading">
+        <h2>退出工作手记？</h2>
+      </div>
+      <p class="dialog-hint">当前编辑会先保存，然后关闭本地程序。</p>
+      <div class="dialog-actions">
+        <button class="secondary-button" data-close>继续记录</button>
+        <button id="confirm-quit" class="primary-button">保存并退出</button>
+      </div>
+    </dialog>
+    <input id="image-input" type="file" accept="image/*" multiple hidden>
+  </body>
+</html>
