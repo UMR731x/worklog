@@ -2,6 +2,8 @@
 
 本地运行的日常工作进度记录工具。启动 Go 程序后自动打开浏览器，项目、Markdown 记录和图片保存在自己选择的文件夹中。
 
+在 [Releases](https://github.com/UMR731x/worklog/releases) 下载 `windows-x86_64.exe`、`linux-x86_64.bin` 或源码 ZIP。Linux 下载后先运行 `chmod +x linux-x86_64.bin`，再运行 `./linux-x86_64.bin`。
+
 ![工作手记界面，图中为演示项目](docs/screenshot.png)
 
 ## 使用
@@ -79,6 +81,8 @@ dist/linux-amd64/worklog
 ```
 
 Windows 使用 GUI 子系统构建，双击不会附带控制台窗口；启动失败时显示错误对话框。需要终端输出调试时，可以自行运行 `go build -buildvcs=false -o worklog.exe .`。
+
+发布时，在 `docs/releases/<版本标签>.md` 编写说明，再推送 `v` 开头的版本标签。GitHub Actions 会从该标签构建并发布两个可执行文件，GitHub 自动提供对应的源码 ZIP。
 
 开发时建议先编译再运行，使数据稳定保存在所构建程序旁。`go run .` 的可执行文件位于 Go 的临时目录，不适合保存实际工作记录。
 

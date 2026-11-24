@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.4'
+      - name: Build executables
+        run: |
+          sh build.sh
+          mkdir -p dist/release
+          cp dist/linux-amd64/worklog dist/release/linux-x86_64.bin
+          cp dist/windows-amd64/worklog.exe dist/release/windows-x86_64.exe
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "docs/releases/${GITHUB_REF_NAME}.md" dist/release/notes.md
+          cat >> dist/release/notes.md <<'EOF'
+
+          <details>
+          <summary>第三方许可</summary>
+
+          EOF
+          cat THIRD_PARTY_NOTICES.md >> dist/release/notes.md
+          printf '\n</details>\n' >> dist/release/notes.md
+          gh release create "$GITHUB_REF_NAME" \
+            dist/release/linux-x86_64.bin \
+            dist/release/windows-x86_64.exe \
+            --verify-tag \
+            --title "Worklog $GITHUB_REF_NAME" \
+            --notes-file dist/release/notes.md
