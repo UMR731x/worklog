@@ -11,9 +11,10 @@
 - **Windows x64**：双击 `worklog.exe`，浏览器会自动打开。程序无需安装 Go、Node.js 或数据库。
 - **Linux x64**：运行 `./worklog`，通过系统的 `xdg-open` 打开默认浏览器；也可以访问终端打印的本机地址。
 - 程序目录需可写，首次启动会在可执行文件旁创建 `data/`。在「设置」中可浏览文件夹或填写完整路径，切换工作目录。
-- 退出时点击页面右上角的电源按钮。关闭浏览器标签页会保留后台程序运行；Linux 终端中也可按 `Ctrl+C` 退出。
+- 启动后显示系统托盘图标，点击图标或选择菜单中的「打开工作手记」可重新打开页面；右键菜单中的「彻底退出」会关闭后台服务并移除托盘图标。
+- 页面右上角的电源按钮会先保存编辑再退出。托盘退出前请确认状态栏显示已保存；关闭浏览器标签页会保留后台程序运行。Linux 终端也可按 `Ctrl+C` 退出。
 
-程序只监听 `127.0.0.1`，端口由操作系统分配。前端资源已嵌入可执行文件，使用本地图片时可完全离线工作。
+程序只监听 `127.0.0.1`，端口由操作系统分配。前端资源已嵌入可执行文件，项目编辑可离线使用。Linux 托盘需要桌面支持 StatusNotifierItem / AppIndicator；GNOME 可能需要启用对应的托盘扩展。Windows 图标可能收纳在任务栏的隐藏图标区域。
 
 ## 功能
 
@@ -25,6 +26,16 @@
 - 停止输入 600 毫秒后自动保存，也可点击「保存」或按 `Ctrl+S` / `Cmd+S`。
 - 切换项目、记录或工作目录前等待保存。保存失败时保留当前编辑，提示错误；关闭有未保存内容的标签页时，浏览器会提示确认。
 - 工作目录切换后展示新目录内容，原数据保持原位；目录选择在下次启动时恢复。
+- 在设置中选择日间、夜间或跟随系统。主题立即生效，保存在程序目录的 `settings.json` 中；重启、更换端口或切换工作目录后仍然保留。
+- 新图标用于页面、浏览器标签、系统托盘及 Windows 可执行文件。
+
+## 软件更新
+
+右下角「软件更新」每天首次启动时自动检查 [GitHub 正式 Release](https://github.com/UMR731x/worklog/releases/latest)，也可手动检查。检查请求最多等待 15 秒，失败会显示在更新窗口中，正常编辑不受影响。检查日期缓存在程序目录的 `.worklog-update.json`。
+
+发现新版本后，点击「下载并更新」：先保存当前编辑，再下载当前平台的 `windows-x86_64.exe` 或 `linux-x86_64.bin`，替换当前程序、重启并删除旧程序文件。更新保留项目、图片、主题和目录设置。下载失败或替换失败时保留或恢复当前程序；安装期间请保持页面打开。
+
+本地构建默认版本为 `v0.2.0-dev`。当前正式版 `v0.1.0` 比测试版旧，因此不会提示降级；未来发布 `v0.2.0` 或更高正式版本后才会提示更新。
 
 ## 数据保存
 
@@ -32,7 +43,8 @@
 
 ```text
 worklog.exe
-settings.json                  # 更改目录后生成，保存所选路径
+settings.json                  # 保存所选目录和主题
+.worklog-update.json            # 软件更新检查缓存
 data/
   <项目 ID>/
     project.json
@@ -59,7 +71,7 @@ data/
 
 ## 从源码构建
 
-需要 **Go 1.25 或更新版本**。首次构建下载锁定版本的 `github.com/yuin/goldmark`，无需前端构建工具、C 编译器或额外数据库依赖。
+需要 **Go 1.25 或更新版本**。首次构建下载锁定版本的 Markdown、托盘及版本比较依赖，无需前端构建工具、C 编译器或额外数据库依赖。
 
 Linux / macOS 构建机：
 
@@ -82,20 +94,22 @@ dist/linux-amd64/worklog
 
 Windows 使用 GUI 子系统构建，双击不会附带控制台窗口；启动失败时显示错误对话框。需要终端输出调试时，可以自行运行 `go build -buildvcs=false -o worklog.exe .`。
 
-发布时，在 `docs/releases/<版本标签>.md` 编写说明，再推送 `v` 开头的版本标签。GitHub Actions 会从该标签构建并发布两个可执行文件，GitHub 自动提供对应的源码 ZIP。
+发布时，在 `docs/releases/<版本标签>.md` 编写说明，再推送 `v` 开头的版本标签。GitHub Actions 会把标签通过 `VERSION` 写入程序，从该标签构建并发布两个可执行文件，GitHub 自动提供对应的源码 ZIP。测试代码只推送分支，不推送版本标签。
+
+图标源文件为 `web/icon.svg`，托盘使用 `web/icon.png`，Windows 多尺寸图标为 `assets/worklog.ico`。`resources_windows_amd64.syso` 是图标生成的 Windows 资源，可用 `go run github.com/akavel/rsrc@v0.10.2 -arch amd64 -ico assets/worklog.ico -o resources_windows_amd64.syso` 重新生成。
 
 开发时建议先编译再运行，使数据稳定保存在所构建程序旁。`go run .` 的可执行文件位于 Go 的临时目录，不适合保存实际工作记录。
 
 ## 验证
 
 ```sh
-go test -buildvcs=false ./internal/workspace ./internal/server
+go test -buildvcs=false ./internal/workspace ./internal/server ./internal/update
 go vet -buildvcs=false ./...
 ```
 
 自动化用例覆盖记录持久化、同日条目不覆盖、目录切换后的迟到写入、图片读写与删除、异常 JSON 隔离、HTTP 编辑流程、Markdown 渲染和本机服务的浏览器访问边界。
 
-已在 Linux 下使用 Chromium 验证项目增删、编辑保存、刷新恢复、图片预览、多状态筛选、侧栏拖动、目录浏览和切换，以及窄窗口布局。Windows 版本进行交叉编译检查，Windows 桌面的默认浏览器唤起和错误对话框仍需实机验证。
+已在 Linux 下使用 Chromium 验证项目编辑、三种主题、系统主题变化、主题重启恢复、真实 GitHub 更新检查及更新失败后的编辑恢复；使用隔离 D-Bus 托盘宿主验证图标、菜单和完整退出。更新测试覆盖每日检查缓存、开发版不降级、损坏下载、替换回退，以及实际子进程重启和旧文件删除。Windows 版本完成交叉编译；Windows 托盘及自更新的实机表现待测试。
 
 ## 代码结构
 
@@ -103,6 +117,8 @@ go vet -buildvcs=false ./...
 - `internal/workspace/`：项目 JSON、图片、工作目录和设置的持久化。
 - `internal/server/`：HTTP 接口、Markdown 渲染和静态资源。
 - `internal/platform/`：Windows / Linux 的浏览器打开和错误提示。
+- `internal/platform/tray.go`：系统托盘图标、打开和退出菜单。
+- `internal/update/`：正式版本检查、下载、程序替换及重启交接。
 - `web/`：无需构建的 HTML、CSS、JavaScript，由 Go 内嵌。
 
 原始需求中的 MyGo 桌面框架已按确认方案调整为 Go 本地服务与外部浏览器；数据仍按 JSON 项目目录组织。Markdown 渲染使用 [goldmark](https://github.com/yuin/goldmark)，其 MIT 许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

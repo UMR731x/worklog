@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#173e36"/><g stroke="#83dfbc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M24 15h22v34H24a6 6 0 0 1-6-6V21a6 6 0 0 1 6-6ZM18 41a6 6 0 0 1 6-6h22M27 23h10M27 29h7"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2e9e79"/>
+      <stop offset="1" stop-color="#155941"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d9f7e9"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="62" fill="url(#tile)"/>
+  <path d="M79 62h75l38 38v91a17 17 0 0 1-17 17H79a17 17 0 0 1-17-17V79a17 17 0 0 1 17-17Z" fill="#103c2f" opacity=".22"/>
+  <path d="M84 49h69l41 41v90a17 17 0 0 1-17 17H84a17 17 0 0 1-17-17V66a17 17 0 0 1 17-17Z" fill="url(#paper)"/>
+  <path d="M153 49v29a12 12 0 0 0 12 12h29Z" fill="#a8dec6"/>
+  <path d="M92 88h32" fill="none" stroke="#87c7ac" stroke-width="8" stroke-linecap="round"/>
+  <path d="m94 141 23 23 49-53" fill="none" stroke="#237c59" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

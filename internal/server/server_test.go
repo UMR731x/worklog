@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"worklog/internal/update"
 	"worklog/internal/workspace"
 	"worklog/web"
 )
@@ -22,7 +24,7 @@ func testAPI(t *testing.T) (http.Handler, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return New(work, web.Assets, func() {}), snapshot.Token
+	return New(work, web.Assets, func() {}, update.New(filepath.Join(t.TempDir(), "worklog"), update.Version)), snapshot.Token
 }
 
 func callAPI(handler http.Handler, token, method, path, body string) *httptest.ResponseRecorder {

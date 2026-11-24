@@ -3,11 +3,12 @@ set -eu
 
 cd "$(dirname "$0")"
 mkdir -p dist/windows-amd64 dist/linux-amd64
+version=${VERSION:-v0.2.0-dev}
 
 CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -buildvcs=false -trimpath \
-  -ldflags="-s -w -H windowsgui" -o dist/windows-amd64/worklog.exe .
+  -ldflags="-s -w -H windowsgui -X worklog/internal/update.Version=$version" -o dist/windows-amd64/worklog.exe .
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath \
-  -ldflags="-s -w" -o dist/linux-amd64/worklog .
+  -ldflags="-s -w -X worklog/internal/update.Version=$version" -o dist/linux-amd64/worklog .
 cp THIRD_PARTY_NOTICES.md dist/windows-amd64/
 cp THIRD_PARTY_NOTICES.md dist/linux-amd64/
 

@@ -2,6 +2,8 @@ import { request } from "./api.js";
 import { icon, textElement, showError, saveStatus } from "./ui.js";
 import { ProgressEditor } from "./editor.js";
 import { setupDialogs } from "./dialogs.js";
+import { setupTheme } from "./theme.js";
+import { setupUpdates } from "./updates.js";
 
 const state = {
   token: null,
@@ -210,6 +212,8 @@ function setupResize() {
 }
 
 function setupEvents() {
+  setupTheme();
+  setupUpdates(navigate);
   setupFilters();
   setupResize();
   setupDialogs({ state, api, navigate, applyWorkspace, activateProject });

@@ -12,6 +12,7 @@ import (
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 
+	"worklog/internal/update"
 	"worklog/internal/workspace"
 )
 
@@ -19,10 +20,12 @@ type API struct {
 	workspace *workspace.Workspace
 	markdown  goldmark.Markdown
 	quit      func()
+	assets    fs.FS
+	updates   *update.Updater
 }
 
-func New(work *workspace.Workspace, assets fs.FS, quit func()) http.Handler {
-	api := &API{workspace: work, markdown: goldmark.New(goldmark.WithExtensions(extension.GFM)), quit: quit}
+func New(work *workspace.Workspace, assets fs.FS, quit func(), updates *update.Updater) http.Handler {
+	api := &API{workspace: work, markdown: goldmark.New(goldmark.WithExtensions(extension.GFM)), quit: quit, assets: assets, updates: updates}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/workspace", api.snapshot)
 	mux.HandleFunc("POST /api/workspace", api.switchDirectory)
@@ -37,6 +40,11 @@ func New(work *workspace.Workspace, assets fs.FS, quit func()) http.Handler {
 	mux.HandleFunc("GET /images/{token}/{id}/{name}", api.image)
 	mux.HandleFunc("POST /api/preview", api.preview)
 	mux.HandleFunc("POST /api/quit", api.shutdown)
+	mux.HandleFunc("PUT /api/theme", api.setTheme)
+	mux.HandleFunc("GET /api/update", api.checkUpdate)
+	mux.HandleFunc("POST /api/update/check", api.checkUpdate)
+	mux.HandleFunc("POST /api/update/install", api.installUpdate)
+	mux.HandleFunc("GET /{$}", api.index)
 	mux.Handle("GET /", http.FileServerFS(assets))
 	protected := http.NewCrossOriginProtection().Handler(mux)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

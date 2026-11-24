@@ -1,0 +1,79 @@
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+.theme-field {
+  padding: 0 0 8px;
+  margin: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.theme-options {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-options button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.theme-options button[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: light-dark(#e4f2ea, #20342f);
+}
+
+.theme-hint {
+  margin: 10px 0;
+  font-size: 11px;
+}
+
+.statusbar-actions, .save-status, .update-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.statusbar .statusbar-actions {
+  gap: 16px;
+}
+
+.update-button {
+  padding: 3px 0 3px 14px;
+  border-left: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.update-button:hover, .update-button[data-available="true"], #release-link {
+  color: var(--accent);
+}
+
+#release-link {
+  font-size: 12px;
+}
+
+body.stopped .statusbar-actions button {
+  pointer-events: none;
+  opacity: .5;
+}
+
+body.updating .topbar-actions {
+  pointer-events: none;
+}

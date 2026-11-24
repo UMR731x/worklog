@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="system">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="dark">
+    <meta name="color-scheme" content="light dark">
     <title>工作手记 · 记录每一步进展</title>
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/welcome.css">
     <link rel="stylesheet" href="/dialogs.css">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/editor.css">
+    <link rel="stylesheet" href="/preferences.css">
     <script type="module" src="/app.js"></script>
   </head>
   <body>
@@ -75,6 +76,20 @@
         <circle cx="12" cy="12" r="9"/>
         <path d="M12 7v5l3 2"/>
       </symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>
+      </symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24">
+        <path d="M20 14A9 9 0 0 1 10 4a9 9 0 1 0 10 10Z"/>
+      </symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="13" rx="2"/>
+        <path d="M8 21h8m-4-4v4"/>
+      </symbol>
+      <symbol id="i-update" viewBox="0 0 24 24">
+        <path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/>
+      </symbol>
     </svg>
     <header class="topbar">
       <button id="toggle-sidebar" class="icon-button mobile-toggle" aria-label="切换项目侧栏">
@@ -83,11 +98,7 @@
         </svg>
       </button>
       <a class="brand" href="/" aria-label="工作手记首页">
-        <span class="brand-mark">
-          <svg class="icon">
-            <use href="#i-book"/>
-          </svg>
-        </span>
+        <img class="brand-mark" src="/icon.svg" alt="" width="34" height="34">
         <span>工作手记</span>
         <span class="edition">WORKLOG</span>
       </a>
@@ -309,11 +320,17 @@
     </div>
     <footer class="statusbar">
       <span><span class="dot doing"></span>本地运行<span class="statusbar-divider">/</span><span id="total-projects">0 个项目</span></span>
-      <span class="save-status" id="save-status" role="status">
-        <svg class="icon small">
-          <use href="#i-check"/>
-        </svg>
-        <span id="save-status-text">准备就绪</span>
+      <span class="statusbar-actions">
+        <span class="save-status" id="save-status" role="status">
+          <svg class="icon small">
+            <use href="#i-check"/>
+          </svg>
+          <span id="save-status-text">准备就绪</span>
+        </span>
+        <button id="open-update" class="update-button" title="检查软件更新">
+          <svg class="icon small"><use href="#i-update"/></svg>
+          <span id="update-label">检查更新</span>
+        </button>
       </span>
     </footer>
     <dialog id="create-dialog">
@@ -376,6 +393,16 @@
             </svg>
           </button>
         </div>
+        <fieldset class="theme-field">
+          <legend class="field-label">外观</legend>
+          <div class="theme-options" aria-label="颜色主题">
+            <button type="button" data-theme-choice="light"><svg class="icon"><use href="#i-sun"/></svg>日间</button>
+            <button type="button" data-theme-choice="dark"><svg class="icon"><use href="#i-moon"/></svg>夜间</button>
+            <button type="button" data-theme-choice="system"><svg class="icon"><use href="#i-monitor"/></svg>跟随系统</button>
+          </div>
+          <p class="dialog-hint theme-hint">即时生效，自动记住你的选择。</p>
+          <p id="theme-error" class="form-error" role="alert"></p>
+        </fieldset>
         <label class="field-label" for="directory-input">工作目录</label>
         <div class="directory-input-row">
           <input id="directory-input" class="text-input" required autocomplete="off" spellcheck="false">
@@ -414,6 +441,21 @@
       <div class="dialog-actions">
         <button class="secondary-button" data-close>继续记录</button>
         <button id="confirm-quit" class="primary-button">保存并退出</button>
+      </div>
+    </dialog>
+    <dialog id="update-dialog">
+      <div class="dialog-heading">
+        <h2>软件更新</h2>
+        <button class="icon-button" data-close aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button>
+      </div>
+      <p id="update-version" class="dialog-hint"></p>
+      <p id="update-message" role="status"></p>
+      <p class="dialog-hint">每天首次启动自动检查正式版本。更新会先保存当前编辑，完成后重启程序并清理旧程序文件。</p>
+      <a id="release-link" target="_blank" rel="noreferrer" hidden>查看版本说明 ↗</a>
+      <p id="update-error" class="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button id="check-update" class="secondary-button">检查更新</button>
+        <button id="install-update" class="primary-button" hidden>下载并更新</button>
       </div>
     </dialog>
     <input id="image-input" type="file" accept="image/*" multiple hidden>

@@ -17,6 +17,7 @@ var (
 
 type Settings struct {
 	Directory string `json:"directory"`
+	Theme     string `json:"theme"`
 }
 
 type Snapshot struct {
@@ -33,6 +34,7 @@ type Workspace struct {
 	root      *os.Root
 	directory string
 	token     string
+	theme     string
 }
 
 func Open(baseDirectory string) (*Workspace, error) {
@@ -40,7 +42,7 @@ func Open(baseDirectory string) (*Workspace, error) {
 	if err != nil {
 		return nil, err
 	}
-	settings := Settings{Directory: filepath.Join(baseDirectory, "data")}
+	settings := Settings{Directory: filepath.Join(baseDirectory, "data"), Theme: "system"}
 	file, err := base.Open("settings.json")
 	if err == nil {
 		err = json.NewDecoder(file).Decode(&settings)
@@ -58,7 +60,10 @@ func Open(baseDirectory string) (*Workspace, error) {
 		base.Close()
 		return nil, err
 	}
-	return &Workspace{base: base, root: root, directory: directory, token: newID()}, nil
+	if !validTheme(settings.Theme) {
+		settings.Theme = "system"
+	}
+	return &Workspace{base: base, root: root, directory: directory, token: newID(), theme: settings.Theme}, nil
 }
 
 func (w *Workspace) Close() error {
@@ -118,7 +123,7 @@ func (w *Workspace) Switch(token, directory string) (Snapshot, error) {
 	next := &Workspace{root: root, directory: absolute, token: newID()}
 	snapshot, err := next.snapshot()
 	if err == nil {
-		err = writeJSON(w.base, "settings.json", Settings{Directory: absolute})
+		err = writeJSON(w.base, "settings.json", Settings{Directory: absolute, Theme: w.theme})
 	}
 	if err != nil {
 		root.Close()
