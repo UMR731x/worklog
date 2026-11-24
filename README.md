@@ -106,7 +106,7 @@ dist/linux-amd64/worklog
 
 Windows 使用 GUI 子系统构建，双击不会附带控制台窗口；启动失败时显示错误对话框。需要终端输出调试时，可以自行运行 `go build -buildvcs=false -o worklog.exe .`。
 
-发布时，在 `docs/releases/<版本标签>.md` 编写说明，再推送 `v` 开头的版本标签。GitHub Actions 会把标签通过 `VERSION` 写入程序，从该标签构建并发布两个可执行文件，GitHub 自动提供对应的源码 ZIP。测试代码只推送分支，不推送版本标签。
+发布前，在 `docs/releases/<版本标签>.md` 编写并确认说明。Release 工作流仅手动触发：在 GitHub 的 Actions → Release → Run workflow 中选择 `main`，填写已存在的版本标签 `tag`。工作流从该标签构建，将标签通过 `VERSION` 写入程序，再发布两个可执行文件；GitHub 自动提供对应的源码 ZIP。推送分支或版本标签不会自动运行发布任务。同一版本选择 GitHub CLI 或该工作流发布一次，已发布的版本不再运行发布工作流。
 
 图标源文件为 `web/icon.svg`，托盘使用 `web/icon.png`，Windows 多尺寸图标为 `assets/worklog.ico`。`resources_windows_amd64.syso` 是图标生成的 Windows 资源，可用 `go run github.com/akavel/rsrc@v0.10.2 -arch amd64 -ico assets/worklog.ico -o resources_windows_amd64.syso` 重新生成。
 

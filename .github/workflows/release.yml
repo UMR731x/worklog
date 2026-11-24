@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的已有版本标签，例如 v0.4.0'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -11,14 +14,16 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag }}
       - uses: actions/setup-go@v7
         with:
           go-version: '1.27.4'
       - name: Build executables
-        env:
-          VERSION: ${{ github.ref_name }}
         run: |
           sh build.sh
           mkdir -p dist/release
@@ -28,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp "docs/releases/${GITHUB_REF_NAME}.md" dist/release/notes.md
+          cp "docs/releases/${VERSION}.md" dist/release/notes.md
           cat >> dist/release/notes.md <<'EOF'
 
           <details>
@@ -37,9 +42,9 @@ jobs:
           EOF
           cat THIRD_PARTY_NOTICES.md >> dist/release/notes.md
           printf '\n</details>\n' >> dist/release/notes.md
-          gh release create "$GITHUB_REF_NAME" \
+          gh release create "$VERSION" \
             dist/release/linux-x86_64.bin \
             dist/release/windows-x86_64.exe \
             --verify-tag \
-            --title "Worklog $GITHUB_REF_NAME" \
+            --title "Worklog $VERSION" \
             --notes-file dist/release/notes.md
