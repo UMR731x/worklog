@@ -36,6 +36,8 @@ func New(work *workspace.Workspace, assets fs.FS, quit func(), updates *update.U
 	mux.HandleFunc("PUT /api/projects/{id}/status", api.setStatus)
 	mux.HandleFunc("POST /api/projects/{id}/entries", api.addEntry)
 	mux.HandleFunc("PUT /api/projects/{id}/entries/{key}", api.saveEntry)
+	mux.HandleFunc("PUT /api/projects/{id}/entries/{key}/name", api.renameEntry)
+	mux.HandleFunc("DELETE /api/projects/{id}/entries/{key}", api.deleteEntry)
 	mux.HandleFunc("POST /api/projects/{id}/images", api.uploadImage)
 	mux.HandleFunc("GET /images/{token}/{id}/{name}", api.image)
 	mux.HandleFunc("POST /api/preview", api.preview)

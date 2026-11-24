@@ -13,9 +13,16 @@ import (
 )
 
 type Document struct {
-	Name    string            `json:"name"`
-	Status  string            `json:"status"`
-	Entries map[string]string `json:"entries"`
+	Name          string                   `json:"name"`
+	Status        string                   `json:"status"`
+	Entries       map[string]string        `json:"entries"`
+	EntryMetadata map[string]EntryMetadata `json:"entryMetadata,omitempty"`
+}
+
+type EntryMetadata struct {
+	Name      string    `json:"name,omitempty"`
+	CreatedAt time.Time `json:"createdAt,omitzero"`
+	UpdatedAt time.Time `json:"updatedAt,omitzero"`
 }
 
 type Project struct {
@@ -110,6 +117,8 @@ func (w *Workspace) AddEntry(token, id, date string) (Project, string, error) {
 			key = fmt.Sprintf("%s (%d)", date, number)
 		}
 		project.Entries[key] = ""
+		now := time.Now()
+		project.EntryMetadata[key] = EntryMetadata{CreatedAt: now, UpdatedAt: now}
 		return nil
 	})
 	return project, key, err
@@ -117,10 +126,48 @@ func (w *Workspace) AddEntry(token, id, date string) (Project, string, error) {
 
 func (w *Workspace) SaveEntry(token, id, key, content string) (Project, error) {
 	return w.changeProject(token, id, func(project *Project) error {
+		previous, exists := project.Entries[key]
+		if !exists {
+			return os.ErrNotExist
+		}
+		if previous == content {
+			return nil
+		}
+		project.Entries[key] = content
+		metadata := project.EntryMetadata[key]
+		metadata.UpdatedAt = time.Now()
+		project.EntryMetadata[key] = metadata
+		return nil
+	})
+}
+
+func (w *Workspace) RenameEntry(token, id, key, name string) (Project, error) {
+	return w.changeProject(token, id, func(project *Project) error {
 		if _, exists := project.Entries[key]; !exists {
 			return os.ErrNotExist
 		}
-		project.Entries[key] = content
+		name = strings.TrimSpace(name)
+		if name == "" {
+			return fmt.Errorf("%w：进度记录名称不能为空", ErrInput)
+		}
+		metadata := project.EntryMetadata[key]
+		if name == metadata.Name || (metadata.Name == "" && name == key) {
+			return nil
+		}
+		metadata.Name = name
+		metadata.UpdatedAt = time.Now()
+		project.EntryMetadata[key] = metadata
+		return nil
+	})
+}
+
+func (w *Workspace) DeleteEntry(token, id, key string) (Project, error) {
+	return w.changeProject(token, id, func(project *Project) error {
+		if _, exists := project.Entries[key]; !exists {
+			return os.ErrNotExist
+		}
+		delete(project.Entries, key)
+		delete(project.EntryMetadata, key)
 		return nil
 	})
 }
@@ -164,6 +211,9 @@ func (w *Workspace) readProject(id string) (Project, error) {
 	}
 	if strings.TrimSpace(document.Name) == "" || !validStatus(document.Status) || document.Entries == nil {
 		return Project{}, fmt.Errorf("project.json 缺少有效的 name、status 或 entries 字段")
+	}
+	if document.EntryMetadata == nil {
+		document.EntryMetadata = make(map[string]EntryMetadata)
 	}
 	stat, err := file.Stat()
 	if err != nil {

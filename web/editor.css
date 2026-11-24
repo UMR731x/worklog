@@ -56,48 +56,6 @@
   margin: 10px 0 0;
 }
 
-.status-select {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: light-dark(#e9efeb, #252b34);
-  border: 1px solid light-dark(#d5e2d9, #3b444f);
-  border-radius: 6px;
-  padding: 5px 6px 5px 9px;
-}
-
-.status-select select {
-  cursor: pointer;
-  font-size: 11px;
-  color: light-dark(#344b3d, #b7c2d0);
-  background: transparent;
-  border: none;
-  padding-right: 2px;
-}
-
-.status-select option {
-  background: light-dark(#e9efeb, #252b34);
-  color: light-dark(#344b3d, #d8e2ee);
-}
-
-.status-select[data-status="Doing"] {
-  background: light-dark(#e4f3e9, #20382d);
-  border-color: light-dark(#b3d5bd, #315640);
-}
-
-.status-select[data-status="Doing"] select {
-  color: light-dark(#227345, #8ed7ad);
-}
-
-.status-select[data-status="Done"] {
-  background: light-dark(#fbe9ed, #39262e);
-  border-color: light-dark(#e6bbc7, #643b48);
-}
-
-.status-select[data-status="Done"] select {
-  color: light-dark(#a33150, #f1a2af);
-}
-
 .entry-empty {
   flex: 1;
   display: flex;
@@ -145,7 +103,7 @@
   flex: 1;
   min-height: 300px;
   display: grid;
-  grid-template-columns: 177px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr);
   border: 1px solid light-dark(#d5e2d9, #303740);
   border-radius: 10px;
   overflow: hidden;
@@ -216,6 +174,7 @@
 .entry-copy {
   display: block;
   min-width: 0;
+  flex: 1;
 }
 
 .entry-date {
@@ -223,10 +182,33 @@
   font-size: 11px;
   color: light-dark(#344b3d, #b9c4d3);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .entry-row[aria-current="true"] .entry-date {
   color: light-dark(#276f47, #a7e2c2);
+}
+
+.entry-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-times > span {
+  white-space: nowrap;
+}
+
+.entry-sidebar .entry-times {
+  flex-direction: column;
+  gap: 2px;
 }
 
 .entry-excerpt {
@@ -275,7 +257,42 @@
   font-size: 21px;
   font-weight: 500;
   letter-spacing: .5px;
-  margin: 7px 0 0;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.entry-heading-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.entry-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 7px;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.entry-actions .icon-button {
+  width: 28px;
+  height: 28px;
+}
+
+.entry-actions .icon {
+  width: 15px;
+  height: 15px;
+}
+
+#delete-entry:hover {
+  color: light-dark(#b53653, #ef8b97);
+  background: light-dark(#fbe9ed, #39262e);
 }
 
 .editor-modes {
@@ -589,7 +606,7 @@
     padding: 23px 22px;
   }
   .journal {
-    grid-template-columns: 147px minmax(0, 1fr);
+    grid-template-columns: 210px minmax(0, 1fr);
   }
   .editor-heading {
     padding: 20px;
@@ -623,7 +640,7 @@
     overflow-x: auto;
   }
   .entry-row {
-    width: auto;
+    width: 220px;
     flex-shrink: 0;
     padding: 8px 11px;
     margin: 0;

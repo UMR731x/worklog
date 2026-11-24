@@ -4,6 +4,8 @@ import { ProgressEditor } from "./editor.js";
 import { setupDialogs } from "./dialogs.js";
 import { setupTheme } from "./theme.js";
 import { setupUpdates } from "./updates.js";
+import { entryName, entryTimes } from "./entries.js";
+import { setupStatusPicker, renderStatusPicker } from "./status.js";
 
 const state = {
   token: null,
@@ -50,7 +52,10 @@ function entrySaved(summary, key, content) {
   updateSummary(summary);
   state.project.entries[key] = content;
   state.project.updatedAt = summary.updatedAt;
+  state.project.entryMetadata ??= {};
+  state.project.entryMetadata[key] = summary.entry;
   renderEntries();
+  renderEntryHeading();
   renderHeader();
 }
 
@@ -125,8 +130,7 @@ function renderHeader() {
   const project = state.project;
   document.getElementById("project-title").textContent = project.name;
   document.getElementById("breadcrumb-name").textContent = project.name;
-  document.getElementById("project-status").value = project.status;
-  document.getElementById("status-label").dataset.status = project.status;
+  renderStatusPicker(project.status);
   const modified = new Date(project.updatedAt).toLocaleString("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
   document.getElementById("project-subtitle").textContent = `${Object.keys(project.entries).length} 条进度记录 · 最近编辑于 ${modified}`;
 }
@@ -141,7 +145,13 @@ function renderEntries() {
     button.setAttribute("aria-current", String(state.entry === key));
     const copy = textElement("span", "entry-copy", "");
     const excerpt = state.project.entries[key].trim().split("\n")[0].replace(/^#+\s*/, "") || "还没有内容";
-    copy.append(textElement("span", "entry-date", key), textElement("span", "entry-excerpt", excerpt));
+    const name = entryName(state.project, key);
+    button.title = name;
+    copy.append(
+      textElement("span", "entry-date", name),
+      entryTimes(state.project, key),
+      textElement("span", "entry-excerpt", excerpt),
+    );
     button.append(textElement("span", "dot", ""), copy);
     button.addEventListener("click", () => navigate(async () => {
       state.entry = key;
@@ -153,12 +163,19 @@ function renderEntries() {
 }
 
 function loadEntry() {
-  document.getElementById("entry-title").textContent = state.entry || "";
+  renderEntryHeading();
   if (state.entry) {
     editor.load({ projectID: state.project.id, key: state.entry, token: state.token }, state.project.entries[state.entry]);
   } else {
     editor.load(null);
   }
+}
+
+function renderEntryHeading() {
+  document.getElementById("entry-title").textContent = state.entry ? entryName(state.project, state.entry) : "";
+  const metadata = document.getElementById("entry-metadata");
+  metadata.replaceChildren();
+  if (state.entry) metadata.append(entryTimes(state.project, state.entry));
 }
 
 async function addEntry() {
@@ -222,16 +239,13 @@ function setupEvents() {
   document.getElementById("empty-add-entry").addEventListener("click", () => addEntry().catch(showError));
   document.getElementById("dismiss-notice").addEventListener("click", () => { document.getElementById("notice").hidden = true; });
   document.getElementById("toggle-sidebar").addEventListener("click", () => document.getElementById("layout").classList.toggle("sidebar-open"));
-  document.getElementById("project-status").addEventListener("change", (event) => {
-    const status = event.target.value;
-    navigate(async () => {
-      const project = await api(`/api/projects/${state.project.id}/status`, { method: "PUT", body: { status } });
-      state.project.status = project.status;
-      state.project.updatedAt = project.updatedAt;
-      updateSummary({ ...project, entryCount: Object.keys(project.entries).length });
-      renderHeader();
-    }).catch((error) => { renderHeader(); showError(error); });
-  });
+  setupStatusPicker((status) => navigate(async () => {
+    const project = await api(`/api/projects/${state.project.id}/status`, { method: "PUT", body: { status } });
+    state.project.status = project.status;
+    state.project.updatedAt = project.updatedAt;
+    updateSummary({ ...project, entryCount: Object.keys(project.entries).length });
+    renderHeader();
+  }));
   document.getElementById("confirm-quit").addEventListener("click", () => navigate(async () => {
     await api("/api/quit", { method: "POST" });
     document.getElementById("quit-dialog").close();

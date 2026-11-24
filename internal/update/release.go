@@ -16,7 +16,7 @@ import (
 )
 
 // Version is set from the release tag by the build scripts.
-var Version = "v0.2.0-dev"
+var Version = "v0.3.0-dev"
 
 const repository = "https://github.com/UMR731x/worklog"
 

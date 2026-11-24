@@ -1,6 +1,10 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+
+	"worklog/internal/workspace"
+)
 
 func (api *API) createProject(w http.ResponseWriter, r *http.Request) {
 	var request struct {
@@ -60,7 +64,29 @@ func (api *API) saveEntry(w http.ResponseWriter, r *http.Request) {
 	project, err := api.workspace.SaveEntry(
 		r.Header.Get("X-Workspace"), r.PathValue("id"), r.PathValue("key"), *request.Content,
 	)
-	respond(w, http.StatusOK, project.Summary(), err)
+	result := struct {
+		workspace.Summary
+		Entry workspace.EntryMetadata `json:"entry"`
+	}{project.Summary(), project.EntryMetadata[r.PathValue("key")]}
+	respond(w, http.StatusOK, result, err)
+}
+
+func (api *API) renameEntry(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		Name string `json:"name"`
+	}
+	if !decode(w, r, &request) {
+		return
+	}
+	project, err := api.workspace.RenameEntry(
+		r.Header.Get("X-Workspace"), r.PathValue("id"), r.PathValue("key"), request.Name,
+	)
+	respond(w, http.StatusOK, project, err)
+}
+
+func (api *API) deleteEntry(w http.ResponseWriter, r *http.Request) {
+	project, err := api.workspace.DeleteEntry(r.Header.Get("X-Workspace"), r.PathValue("id"), r.PathValue("key"))
+	respond(w, http.StatusOK, project, err)
 }
 
 func (api *API) uploadImage(w http.ResponseWriter, r *http.Request) {

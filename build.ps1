@@ -5,7 +5,7 @@ New-Item -ItemType Directory -Force dist/windows-amd64, dist/linux-amd64 | Out-N
 $previousCGO = $env:CGO_ENABLED
 $previousOS = $env:GOOS
 $previousArch = $env:GOARCH
-$buildVersion = if ($env:VERSION) { $env:VERSION } else { "v0.2.0-dev" }
+$buildVersion = if ($env:VERSION) { $env:VERSION } else { "v0.3.0-dev" }
 
 try {
     $env:CGO_ENABLED = "0"

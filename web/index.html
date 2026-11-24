@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/dialogs.css">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/editor.css">
+    <link rel="stylesheet" href="/status.css">
     <link rel="stylesheet" href="/preferences.css">
     <script type="module" src="/app.js"></script>
   </head>
@@ -33,6 +34,9 @@
       </symbol>
       <symbol id="i-trash" viewBox="0 0 24 24">
         <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/>
+      </symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15ZM4 20h16"/>
       </symbol>
       <symbol id="i-settings" viewBox="0 0 24 24">
         <path d="M4 7h16M4 17h16M8 4v6M16 14v6"/>
@@ -227,14 +231,25 @@
             <div class="project-heading">
               <div class="project-title-line">
                 <h2 id="project-title"></h2>
-                <label class="status-select" id="status-label">
-                  <span class="dot"></span>
-                  <select id="project-status" aria-label="项目状态">
-                    <option>Doing</option>
-                    <option>Done</option>
-                    <option>Pending</option>
-                  </select>
-                </label>
+                <div class="status-picker" id="status-picker">
+                  <button id="project-status" class="status-select" aria-label="项目状态" aria-haspopup="menu" aria-expanded="false" aria-controls="status-options">
+                    <span class="dot"></span>
+                    <span id="project-status-name"></span>
+                    <svg class="icon status-chevron"><use href="#i-chevron"/></svg>
+                  </button>
+                  <div id="status-options" class="status-options" role="menu" aria-label="更改项目状态" hidden>
+                    <span class="status-options-label" aria-hidden="true">项目状态</span>
+                    <button role="menuitemradio" data-status="Doing" aria-checked="false" tabindex="-1">
+                      <span class="dot doing"></span><span class="status-option-copy"><span>Doing</span><small>进行中</small></span><svg class="icon status-check"><use href="#i-check"/></svg>
+                    </button>
+                    <button role="menuitemradio" data-status="Done" aria-checked="false" tabindex="-1">
+                      <span class="dot done"></span><span class="status-option-copy"><span>Done</span><small>已完成</small></span><svg class="icon status-check"><use href="#i-check"/></svg>
+                    </button>
+                    <button role="menuitemradio" data-status="Pending" aria-checked="false" tabindex="-1">
+                      <span class="dot pending"></span><span class="status-option-copy"><span>Pending</span><small>待开始</small></span><svg class="icon status-check"><use href="#i-check"/></svg>
+                    </button>
+                  </div>
+                </div>
               </div>
               <p id="project-subtitle"></p>
             </div>
@@ -261,9 +276,16 @@
             </aside>
             <section class="editor-panel" id="editor-panel" data-mode="edit">
               <div class="editor-heading">
-                <div>
+                <div class="entry-heading-copy">
                   <span class="eyebrow">PROGRESS NOTE</span>
-                  <h3 id="entry-title"></h3>
+                  <div class="entry-title-row">
+                    <h3 id="entry-title"></h3>
+                    <div class="entry-actions">
+                      <button id="rename-entry" class="icon-button" title="重命名进度记录" aria-label="重命名进度记录"><svg class="icon"><use href="#i-edit"/></svg></button>
+                      <button id="delete-entry" class="icon-button" title="删除进度记录" aria-label="删除进度记录"><svg class="icon"><use href="#i-trash"/></svg></button>
+                    </div>
+                  </div>
+                  <div id="entry-metadata"></div>
                 </div>
                 <div class="editor-modes" role="group" aria-label="编辑视图">
                   <button data-mode="edit" aria-pressed="true">编辑</button>
@@ -376,6 +398,35 @@
         <p class="form-error" id="delete-error" role="alert"></p>
         <div class="dialog-actions">
           <button type="button" class="secondary-button" data-close>保留项目</button>
+          <button type="submit" class="danger-button">确认删除</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="rename-entry-dialog">
+      <form id="rename-entry-form">
+        <div class="dialog-heading">
+          <h2>重命名进度记录</h2>
+          <button type="button" class="icon-button" data-close aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button>
+        </div>
+        <label class="field-label" for="entry-name-input">记录名称</label>
+        <input id="entry-name-input" class="text-input" required autocomplete="off">
+        <p class="form-error" id="rename-entry-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close>取消</button>
+          <button type="submit" class="primary-button">保存名称</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="delete-entry-dialog">
+      <form id="delete-entry-form">
+        <div class="dialog-heading">
+          <h2>删除进度记录？</h2>
+          <button type="button" class="icon-button" data-close aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button>
+        </div>
+        <p class="delete-description">将删除「<strong id="delete-entry-name"></strong>」这条进度记录。此操作无法撤销。</p>
+        <p class="form-error" id="delete-entry-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close>保留记录</button>
           <button type="submit" class="danger-button">确认删除</button>
         </div>
       </form>

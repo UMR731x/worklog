@@ -1,4 +1,5 @@
 import { icon, textElement } from "./ui.js";
+import { entryName } from "./entries.js";
 
 export function setupDialogs({ state, api, navigate, applyWorkspace, activateProject }) {
   document.querySelectorAll("[data-close]").forEach((button) => {
@@ -51,6 +52,34 @@ export function setupDialogs({ state, api, navigate, applyWorkspace, activatePro
     document.getElementById("layout").classList.remove("sidebar-open");
   });
   setupDirectoryBrowser(api);
+  setupEntryDialogs({ state, api, navigate, activateProject });
+}
+
+function setupEntryDialogs({ state, api, navigate, activateProject }) {
+  document.getElementById("rename-entry").addEventListener("click", () => {
+    const input = document.getElementById("entry-name-input");
+    input.value = entryName(state.project, state.entry);
+    document.getElementById("rename-entry-error").textContent = "";
+    document.getElementById("rename-entry-dialog").showModal();
+    input.focus();
+    input.select();
+  });
+  document.getElementById("delete-entry").addEventListener("click", () => {
+    document.getElementById("delete-entry-name").textContent = entryName(state.project, state.entry);
+    document.getElementById("delete-entry-error").textContent = "";
+    document.getElementById("delete-entry-dialog").showModal();
+  });
+  bindForm("rename-entry", navigate, async () => {
+    const name = document.getElementById("entry-name-input").value;
+    const path = `/api/projects/${state.project.id}/entries/${encodeURIComponent(state.entry)}/name`;
+    const project = await api(path, { method: "PUT", body: { name } });
+    activateProject(project, state.entry);
+  });
+  bindForm("delete-entry", navigate, async () => {
+    const path = `/api/projects/${state.project.id}/entries/${encodeURIComponent(state.entry)}`;
+    const project = await api(path, { method: "DELETE" });
+    activateProject(project);
+  });
 }
 
 function bindForm(name, navigate, action) {

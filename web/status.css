@@ -1,0 +1,106 @@
+.status-picker {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.status-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid light-dark(#d5e2d9, #3b444f);
+  border-radius: 8px;
+  background: light-dark(#edf2ee, #252b34);
+  color: light-dark(#52675a, #b7c2d0);
+  font-size: 11px;
+}
+
+.status-select:hover, .status-select[aria-expanded="true"] {
+  border-color: currentColor;
+}
+
+.status-select[data-status="Doing"] {
+  background: light-dark(#e4f3e9, #20382d);
+  border-color: light-dark(#b3d5bd, #315640);
+  color: light-dark(#227345, #8ed7ad);
+}
+
+.status-select[data-status="Done"] {
+  background: light-dark(#fbe9ed, #39262e);
+  border-color: light-dark(#e6bbc7, #643b48);
+  color: light-dark(#a33150, #f1a2af);
+}
+
+.status-chevron {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  transform: rotate(90deg);
+  transition: transform .15s;
+}
+
+.status-select[aria-expanded="true"] .status-chevron {
+  transform: rotate(-90deg);
+}
+
+.status-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  width: 190px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: light-dark(#ffffff, #20272f);
+  box-shadow: 0 12px 32px light-dark(#163c2b24, #0006);
+}
+
+.status-options-label {
+  display: block;
+  padding: 7px 9px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.status-options button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 7px;
+  text-align: left;
+}
+
+.status-options button:hover, .status-options button:focus-visible {
+  background: light-dark(#f0f5f2, #2d363f);
+}
+
+.status-options button[aria-checked="true"] {
+  background: light-dark(#e9f4ed, #293b32);
+}
+
+.status-option-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.status-option-copy small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.status-check {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+  visibility: hidden;
+}
+
+[aria-checked="true"] .status-check {
+  visibility: visible;
+}

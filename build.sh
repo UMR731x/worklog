@@ -3,7 +3,7 @@ set -eu
 
 cd "$(dirname "$0")"
 mkdir -p dist/windows-amd64 dist/linux-amd64
-version=${VERSION:-v0.2.0-dev}
+version=${VERSION:-v0.3.0-dev}
 
 CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -buildvcs=false -trimpath \
   -ldflags="-s -w -H windowsgui -X worklog/internal/update.Version=$version" -o dist/windows-amd64/worklog.exe .
